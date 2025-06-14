@@ -112,3 +112,9 @@ Sistem JastipYuk menyediakan fitur **backup database otomatis** yang dapat dijal
     }
 }
 ```
+
+## 📌 Relevansi Proyek dengan Pemrosesan Data Terdistribusi
+Sistemem ini dirancang dengan memperhatikan prinsip-prinsip dasar pemrosesan data terdistribusi:
+*Konsistensi: Semua transaksi dikelola menggunakan stored procedure dan mekanisme validasi yang terpusat di tingkat database, sehingga memastikan bahwa setiap perubahan data dilakukan secara konsisten, terlepas dari siapa pengguna atau perangkat yang mengaksesnya.
+*Reliabilitas: Implementasi transaction (beginTransaction, commit, dan rollback) serta trigger bawaan di database memastikan sistem tetap berfungsi dengan baik meskipun terjadi kegagalan sebagian (seperti kesalahan saat eksekusi atau koneksi terputus).
+*Integritas: Dengan menyimpan sebagian besar logika bisnis—seperti pengelolaan status pesanan dan pembuatan profil pengguna—langsung di dalam database (melalui procedure dan trigger), data tetap valid dan sinkron meskipun sistem dikembangkan untuk diakses dari berbagai sumber, seperti antarmuka web, aplikasi mobile, atau API eksternal.
