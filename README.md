@@ -7,15 +7,34 @@
 ## 📋 Stored Procedure
 Stored procedure digunakan untuk menangani proses pemesanan barang dan mencatat aktivitas pengguna secara langsung di dalam database. Salah satu prosedur yang digunakan adalah UbahStatusPesanan, yang berfungsi untuk memperbarui status pesanan pada tabel orders. Selain memperbarui status, prosedur ini juga secara otomatis mencatat perubahan tersebut ke tabel log_pesanan.
 
-![Screenshot 2025-06-14 114117](https://github.com/user-attachments/assets/10af12be-465e-44bc-8286-3fab606a61ff)
+```php
+if ($_POST && isset($_POST['update_status'])) {
+    $order_id = (int)$_POST['order_id'];
+    $new_status = $_POST['status'];
+    $valid_statuses = ['Menunggu Persetujuan', 'Disetujui', 'Barang Dibeli', 'Dikirim', 'Selesai', 'Ditolak'];
+
+    if (in_array($new_status, $valid_statuses)) {
+        try {
+            $db->beginTransaction();
+            $query = "CALL UbahStatusPesanan(?, ?)";
+            $stmt = $db->prepare($query);
+            $stmt->execute([$order_id, $new_status]);
+
+            $db->commit();
+        } catch (Exception $e) {
+            $db->rollBack();
+            echo "Gagal memperbarui status: " . $e->getMessage();
+        }
+    }
+} 
+```
 
 * Kode ini memanggil stored procedure UbahStatusPesanan dari PHP untuk mengubah status pesanan dan mencatatnya ke log. Stored procedure memproses logika langsung di database, sehingga aplikasi tetap ringan.
 
-
-
-
 ## ❗ Trigger
 Sistem JastipYuk menerapkan trigger dengan nama SaatUserBaruDaftar. Trigger ini akan dijalankan setiap kali ada data baru dimasukkan ke dalam tabel users, yaitu saat seorang pengguna mendaftar. Trigger akan otomatis membuat entri awal pada tabel user_profiles dengan nama lengkap default.
+
+
 
 ## 🖥️ Transaction
 Pada file SQL sistem ini juga digunakan transaksi database, yang ditandai dengan perintah START TRANSACTION dan COMMIT. Transaksi digunakan untuk menjamin semua perintah SQL di dalamnya dijalankan secara utuh atau tidak dijalankan sama sekali. Jika terjadi kesalahan di tengah proses, maka seluruh perubahan akan dibatalkan sehingga tidak ada data yang tersimpan setengah jalan.
