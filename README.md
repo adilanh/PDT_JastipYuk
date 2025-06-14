@@ -9,6 +9,24 @@ Stored procedure digunakan untuk menangani proses pemesanan barang dan mencatat 
 
 ![Screenshot 2025-06-14 122255](https://github.com/user-attachments/assets/96c866a1-0447-434c-b0fe-931c11348bf9)
 
+```sql
+CREATE DEFINER=`root`@`localhost` PROCEDURE `UbahStatusPesanan` (IN `id_pesanan_input` INT, IN `status_baru_input` VARCHAR(50))   BEGIN
+    -- 1. Update status pesanan
+    UPDATE orders 
+    SET status = status_baru_input, updated_at = CURRENT_TIMESTAMP 
+    WHERE id = id_pesanan_input;
+    
+    -- 2. Catat perubahan ke dalam log
+    INSERT INTO log_pesanan (order_id, status_change) 
+    VALUES (id_pesanan_input, CONCAT('Status diubah menjadi "', status_baru_input, '"'));
+END$$
+```
+* Mengubah status dari sebuah pesanan pada tabel orders.
+* Mencatat log perubahan status tersebut ke dalam tabel log_pesanan.
+
+
+
+
 ```php
 if ($_POST && isset($_POST['update_status'])) {
     $order_id = (int)$_POST['order_id'];
@@ -37,6 +55,33 @@ if ($_POST && isset($_POST['update_status'])) {
 Sistem JastipYuk menerapkan trigger dengan nama SaatUserBaruDaftar. Trigger ini akan dijalankan setiap kali ada data baru dimasukkan ke dalam tabel users, yaitu saat seorang pengguna mendaftar. Trigger akan otomatis membuat entri awal pada tabel user_profiles dengan nama lengkap default.
 
 ![Screenshot 2025-06-14 122146](https://github.com/user-attachments/assets/81248988-8823-4944-b6bc-e2c16c1be98d)
+
+```sql
+DELIMITER $$
+CREATE TRIGGER `SaatUserBaruDaftar` 
+AFTER INSERT ON `users` 
+FOR EACH ROW 
+BEGIN
+    INSERT INTO user_profiles (user_id, full_name) 
+    VALUES (NEW.id, 'Nama Lengkap');
+END
+$$
+DELIMITER ;
+```
+
+* Trigger SaatUserBaruDaftar otomatis berjalan setiap kali ada insert data baru ke tabel users, yaitu saat seorang pengguna mendaftar. Hook ini akan mengeksekusi perintah INSERT ke tabel user_profiles, membuat entri profil default berdasarkan ID pengguna baru tersebut.
+
+* Contoh
+  
+```sql
+INSERT INTO users (username, email, password, role) 
+VALUES ('andi', 'andi@example.com', 'hashed_password', 'CUSTOMER');
+```
+* Maka trigger akan otomatis menjalankan:
+ ```sql
+INSERT INTO user_profiles (user_id, full_name)
+VALUES (ID_terbaru, 'Nama Lengkap');
+```
 
 
 ## 🖥️ Transaction
