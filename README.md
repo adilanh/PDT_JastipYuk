@@ -49,3 +49,66 @@ Fungsi HitungTotalPesananAktif ini digunakan untuk menghitung jumlah pesanan akt
 
 
 ## 📥 Backup Database
+Sistem JastipYuk menyediakan fitur **backup database otomatis** yang dapat dijalankan melalui antarmuka admin. Fitur ini mengamankan data penting dengan membuat salinan dari seluruh database ke dalam file `.sql`.
+### Kode PHP Backup (`admin-backup.php`)
+
+```php
+<if ($_POST && isset($_POST['generate_backup'])) {
+    try {
+        $database = new Database();
+        $db = $database->getConnection();
+        
+        // Ambil semua tabel dalam database
+        $tables = [];
+        $result = $db->query("SHOW TABLES");
+        while ($row = $result->fetch(PDO::FETCH_NUM)) {
+            $tables[] = $row[0];
+        }
+        
+        $backup_content = "-- JastipYuk Database Backup\n";
+        $backup_content .= "-- Generated on: " . date('Y-m-d H:i:s') . "\n\n";
+        $backup_content .= "SET FOREIGN_KEY_CHECKS = 0;\n\n";
+        
+        foreach ($tables as $table) {
+            // Struktur tabel
+            $result = $db->query("SHOW CREATE TABLE `$table`");
+            $row = $result->fetch(PDO::FETCH_NUM);
+            $backup_content .= "DROP TABLE IF EXISTS `$table`;\n";
+            $backup_content .= $row[1] . ";\n\n";
+            
+            // Data tabel
+            $result = $db->query("SELECT * FROM `$table`");
+            $num_fields = $result->columnCount();
+            
+            if ($result->rowCount() > 0) {
+                $backup_content .= "INSERT INTO `$table` VALUES ";
+                $first_row = true;
+                
+                while ($row = $result->fetch(PDO::FETCH_NUM)) {
+                    $backup_content .= ($first_row ? "\n(" : ",\n(");
+                    for ($j = 0; $j < $num_fields; $j++) {
+                        $backup_content .= ($j ? "," : "") . ($row[$j] === null ? "NULL" : "'" . addslashes($row[$j]) . "'");
+                    }
+                    $backup_content .= ")";
+                    $first_row = false;
+                }
+                $backup_content .= ";\n\n";
+            }
+        }
+        
+        $backup_content .= "SET FOREIGN_KEY_CHECKS = 1;\n";
+        
+        // Kirim file ke browser untuk diunduh
+        $filename = 'jastipyuk_backup_' . date('Y-m-d_H-i-s') . '.sql';
+        header('Content-Type: application/octet-stream');
+        header('Content-Disposition: attachment; filename="' . $filename . '"');
+        header('Content-Length: ' . strlen($backup_content));
+        
+        echo $backup_content;
+        exit();
+        
+    } catch (Exception $e) {
+        $message = 'Error generating backup: ' . $e->getMessage();
+    }
+}
+```
