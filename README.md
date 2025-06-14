@@ -5,8 +5,10 @@
 ## Stored Procedure
 Stored procedure digunakan untuk menangani proses pemesanan barang dan mencatat aktivitas pengguna secara langsung di dalam database. Salah satu prosedur yang digunakan adalah UbahStatusPesanan, yang berfungsi untuk memperbarui status pesanan pada tabel orders. Selain memperbarui status, prosedur ini juga secara otomatis mencatat perubahan tersebut ke tabel log_pesanan.
 
-
 ![Screenshot 2025-06-14 114117](https://github.com/user-attachments/assets/10af12be-465e-44bc-8286-3fab606a61ff)
+
+* Kode ini memanggil stored procedure UbahStatusPesanan dari PHP untuk mengubah status pesanan dan mencatatnya ke log. Stored procedure memproses logika langsung di database, sehingga aplikasi tetap ringan.
+
 
 
 
