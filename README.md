@@ -42,15 +42,45 @@ Sistem JastipYuk menerapkan trigger dengan nama SaatUserBaruDaftar. Trigger ini 
 ## 🖥️ Transaction
 Pada file SQL sistem ini juga digunakan transaksi database, yang ditandai dengan perintah START TRANSACTION dan COMMIT. Transaksi digunakan untuk menjamin semua perintah SQL di dalamnya dijalankan secara utuh atau tidak dijalankan sama sekali. Jika terjadi kesalahan di tengah proses, maka seluruh perubahan akan dibatalkan sehingga tidak ada data yang tersimpan setengah jalan.
 
+```sql
+START TRANSACTION;
+...
+COMMIT;
+```
+
+* START TRANSACTION; → Menandai awal transaksi.
+* COMMIT; → Menyimpan semua perubahan yang dilakukan selama transaksi ke database.
+* Jika terjadi error, dapat digantikan dengan ROLLBACK; untuk membatalkan perubahan.
+
+
 ## 💡 Function
 Fungsi HitungTotalPesananAktif ini digunakan untuk menghitung jumlah pesanan aktif dari seorang jastiper berdasarkan ID-nya. Pesanan aktif didefinisikan sebagai pesanan yang belum memiliki status "Selesai" atau "Ditolak". 
 
 ![Screenshot 2025-06-14 122416](https://github.com/user-attachments/assets/e8f42df4-c4ee-42e3-979e-71f3b1c9e781)
 
+```sql
+CREATE DEFINER=`root`@`localhost` FUNCTION `HitungTotalPesananAktif` (`id_jastiper_input` INT) RETURNS INT DETERMINISTIC READS SQL DATA BEGIN
+    DECLARE total INT DEFAULT 0;
+    
+    SELECT COUNT(*) INTO total
+    FROM orders o
+    JOIN jastip_posts jp ON o.post_id = jp.id
+    WHERE jp.jastiper_id = id_jastiper_input 
+    AND o.status NOT IN ('Selesai', 'Ditolak');
+    
+    RETURN total;
+END$$
+
+DELIMITER ;
+```
+* Fungsi HitungTotalPesananAktif menghitung jumlah pesanan aktif yang dimiliki oleh jastiper tertentu berdasarkan id_jastiper_input.
+* Status pesanannya bukan 'Selesai' atau 'Ditolak' (artinya masih aktif).
+
 
 ## 📥 Backup Database
 Sistem JastipYuk menyediakan fitur **backup database otomatis** yang dapat dijalankan melalui antarmuka admin. Fitur ini mengamankan data penting dengan membuat salinan dari seluruh database ke dalam file `.sql`.
-### Kode PHP Backup (`admin-backup.php`)
+
+* Kode PHP Backup (`admin-backup.php`)
 
 ```php
 <if ($_POST && isset($_POST['generate_backup'])) {
