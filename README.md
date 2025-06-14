@@ -45,4 +45,7 @@ Pada file SQL sistem ini juga digunakan transaksi database, yang ditandai dengan
 ## 💡 Function
 Fungsi HitungTotalPesananAktif ini digunakan untuk menghitung jumlah pesanan aktif dari seorang jastiper berdasarkan ID-nya. Pesanan aktif didefinisikan sebagai pesanan yang belum memiliki status "Selesai" atau "Ditolak". 
 
+![Screenshot 2025-06-14 122416](https://github.com/user-attachments/assets/e8f42df4-c4ee-42e3-979e-71f3b1c9e781)
+
+
 ## 📥 Backup Database
