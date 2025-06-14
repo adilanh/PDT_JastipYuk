@@ -2,7 +2,7 @@
 
 **JastipYuk** adalah sebuah sistem pengelolaan yang dirancang untuk memfasilitasi jasa titip barang (jastip) antara pengguna. Dibangun menggunakan PHP dan MySQL, sistem ini menyediakan fitur pengelolaan akun pengguna, transaksi pemesanan, serta mekanisme backup otomatis.
 
-![image](https://github.com/user-attachments/assets/c758a2b2-a8a0-4bf9-872c-5ea32e9ab9ce)
+![image](https://github.com/user-attachments/assets/f0dd3b83-aaa8-4145-85cc-c73dc13a22c7)
 
 ## 📋 Stored Procedure
 Stored procedure digunakan untuk menangani proses pemesanan barang dan mencatat aktivitas pengguna secara langsung di dalam database. Salah satu prosedur yang digunakan adalah UbahStatusPesanan, yang berfungsi untuk memperbarui status pesanan pada tabel orders. Selain memperbarui status, prosedur ini juga secara otomatis mencatat perubahan tersebut ke tabel log_pesanan.
