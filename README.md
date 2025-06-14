@@ -5,6 +5,22 @@
 ## Stored Procedure
 Stored procedure digunakan untuk menangani proses pemesanan barang dan mencatat aktivitas pengguna secara langsung di dalam database. Salah satu prosedur yang digunakan adalah UbahStatusPesanan, yang berfungsi untuk memperbarui status pesanan pada tabel orders. Selain memperbarui status, prosedur ini juga secara otomatis mencatat perubahan tersebut ke tabel log_pesanan.
 
+
+if ($_POST && isset($_POST['update_status'])) {
+    $order_id = (int)$_POST['order_id'];
+    $new_status = $_POST['status'];
+    $valid_statuses = ['Menunggu Persetujuan', 'Disetujui', 'Barang Dibeli', 'Dikirim', 'Selesai', 'Ditolak']; 
+    if (in_array($new_status, $valid_statuses)) {
+        try {
+            $db->beginTransaction();
+            $query = "CALL UbahStatusPesanan(?, ?)";
+            $stmt = $db->prepare($query);
+            $stmt->execute([$order_id, $new_status]);
+
+
+
+
+
 ## Trigger
 Sistem JastipYuk menerapkan trigger dengan nama SaatUserBaruDaftar. Trigger ini akan dijalankan setiap kali ada data baru dimasukkan ke dalam tabel users, yaitu saat seorang pengguna mendaftar. Trigger akan otomatis membuat entri awal pada tabel user_profiles dengan nama lengkap default.
 
