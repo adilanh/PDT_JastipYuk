@@ -88,9 +88,28 @@ VALUES (ID_terbaru, 'Nama Lengkap');
 Pada file SQL sistem ini juga digunakan transaksi database, yang ditandai dengan perintah START TRANSACTION dan COMMIT. Transaksi digunakan untuk menjamin semua perintah SQL di dalamnya dijalankan secara utuh atau tidak dijalankan sama sekali. Jika terjadi kesalahan di tengah proses, maka seluruh perubahan akan dibatalkan sehingga tidak ada data yang tersimpan setengah jalan.
 
 ```sql
-START TRANSACTION;
-...
-COMMIT;
+ try {
+            // Use stored procedure with transaction for status update and notification
+            $db->beginTransaction();
+            
+            // Call stored procedure
+            $query = "CALL UbahStatusPesanan(?, ?)";
+            $stmt = $db->prepare($query);
+            $stmt->execute([$order_id, $new_status]);
+            
+            // Add notification for customer
+            $query = "INSERT INTO notifications (user_id, message) 
+                      SELECT o.customer_id, CONCAT('Status pesanan #', o.id, ' diubah menjadi: ', ?) 
+                      FROM orders o WHERE o.id = ?";
+            $stmt = $db->prepare($query);
+            $stmt->execute([$new_status, $order_id]);
+            
+            $db->commit();
+            $success = 'Status pesanan berhasil diperbarui.';
+        } catch (Exception $e) {
+            $db->rollback();
+            $error = 'Terjadi kesalahan saat memperbarui status.';
+        }
 ```
 
 * START TRANSACTION; → Menandai awal transaksi.
